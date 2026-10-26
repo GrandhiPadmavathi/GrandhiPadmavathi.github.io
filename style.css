@@ -111,10 +111,19 @@ strong, b { color: #fff; font-weight: 700; }
   padding: 8px 14px; backdrop-filter: blur(6px); animation: bob 5s ease-in-out infinite;
   box-shadow: 0 8px 24px rgba(0, 0, 0, .4); white-space: nowrap;
 }
-.float-card b { color: var(--gold); }
-.fc1 { top: 6%; left: -6%; }
-.fc2 { top: 46%; right: -8%; animation-delay: 1.5s; }
-.fc3 { bottom: 4%; left: 4%; animation-delay: 3s; }
+.float-card {
+  display: flex; align-items: center; gap: 8px; font-weight: 600; letter-spacing: .02em;
+  border-color: rgba(167, 139, 250, .35);
+}
+.float-card i {
+  font-style: normal; width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center;
+  background: linear-gradient(135deg, rgba(124, 58, 237, .55), rgba(13, 148, 136, .45));
+}
+.float-card svg { width: 16px; height: 16px; fill: none; stroke: var(--gold); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.fc1 { top: 4%; left: -8%; }
+.fc2 { top: 40%; right: -10%; animation-delay: 1.2s; }
+.fc3 { bottom: 4%; left: -2%; animation-delay: 2.4s; }
+.fc4 { bottom: 14%; right: 0; animation-delay: 3.6s; }
 .scroll-hint {
   position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%);
   width: 26px; height: 42px; border: 2px solid var(--muted); border-radius: 14px;
