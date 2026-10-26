@@ -1,36 +1,60 @@
 (() => {
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  // Starfield
-  const canvas = document.getElementById("stars");
+  // Neural-network background
+  const canvas = document.getElementById("network");
   const ctx = canvas.getContext("2d");
-  let stars = [];
+  const LINK = 140;
+  const mouse = { x: -1e4, y: -1e4 };
+  let nodes = [];
   function resize() {
     const dpr = window.devicePixelRatio || 1;
     canvas.width = innerWidth * dpr;
     canvas.height = innerHeight * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const count = Math.round((innerWidth * innerHeight) / 5500);
-    stars = Array.from({ length: count }, () => ({
+    const count = Math.min(110, Math.round((innerWidth * innerHeight) / 14000));
+    nodes = Array.from({ length: count }, () => ({
       x: Math.random() * innerWidth,
       y: Math.random() * innerHeight,
-      r: Math.random() * 1.3 + 0.2,
-      a: Math.random(),
-      da: (Math.random() * 0.012 + 0.003) * (Math.random() < 0.5 ? -1 : 1),
-      vy: Math.random() * 0.12 + 0.02,
+      vx: (Math.random() - 0.5) * 0.35,
+      vy: (Math.random() - 0.5) * 0.35,
+      r: Math.random() * 1.6 + 0.8,
+      hue: Math.random() < 0.7 ? "167,139,250" : "45,212,191",
     }));
   }
   function draw() {
     ctx.clearRect(0, 0, innerWidth, innerHeight);
-    for (const s of stars) {
-      s.a += s.da;
-      if (s.a <= 0.1 || s.a >= 1) s.da = -s.da;
-      s.y += s.vy;
-      if (s.y > innerHeight) { s.y = 0; s.x = Math.random() * innerWidth; }
-      ctx.globalAlpha = Math.max(0.1, Math.min(1, s.a));
-      ctx.fillStyle = "#fff";
+    for (const n of nodes) {
+      n.x += n.vx;
+      n.y += n.vy;
+      if (n.x < 0 || n.x > innerWidth) n.vx = -n.vx;
+      if (n.y < 0 || n.y > innerHeight) n.vy = -n.vy;
+    }
+    for (let i = 0; i < nodes.length; i++) {
+      const a = nodes[i];
+      for (let j = i + 1; j < nodes.length; j++) {
+        const b = nodes[j];
+        const d = Math.hypot(a.x - b.x, a.y - b.y);
+        if (d < LINK) {
+          ctx.strokeStyle = `rgba(${a.hue},${(1 - d / LINK) * 0.28})`;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+          ctx.stroke();
+        }
+      }
+      const dm = Math.hypot(a.x - mouse.x, a.y - mouse.y);
+      if (dm < LINK * 1.4) {
+        ctx.strokeStyle = `rgba(246,196,83,${(1 - dm / (LINK * 1.4)) * 0.5})`;
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(mouse.x, mouse.y);
+        ctx.stroke();
+      }
+      ctx.fillStyle = `rgba(${a.hue},0.85)`;
       ctx.beginPath();
-      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.arc(a.x, a.y, a.r, 0, Math.PI * 2);
       ctx.fill();
     }
     if (!reduceMotion) requestAnimationFrame(draw);
@@ -38,6 +62,8 @@
   resize();
   draw();
   addEventListener("resize", () => { resize(); if (reduceMotion) draw(); });
+  addEventListener("mousemove", (e) => { mouse.x = e.clientX; mouse.y = e.clientY; }, { passive: true });
+  addEventListener("mouseout", () => { mouse.x = mouse.y = -1e4; });
 
   // Typing effect
   const roles = [
